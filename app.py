@@ -124,10 +124,8 @@ def logout():
 @app.route('/users')
 def list_users():
     """Page with listing of users.
-
     Can take a 'q' param in querystring to search by that username.
     """
-
     search = request.args.get('q')
 
     if not search:
