@@ -8,10 +8,8 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
-
 class Follows(db.Model):
     """Connection of a follower <-> followed_user."""
-
     __tablename__ = 'follows'
 
     user_being_followed_id = db.Column(
@@ -19,97 +17,79 @@ class Follows(db.Model):
         db.ForeignKey('users.id', ondelete="cascade"),
         primary_key=True,
     )
-
     user_following_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete="cascade"),
         primary_key=True,
     )
 
-
 class Likes(db.Model):
     """Mapping user likes to warbles."""
-
     __tablename__ = 'likes' 
 
     id = db.Column(
         db.Integer,
         primary_key=True
     )
-
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete='cascade')
     )
-
     message_id = db.Column(
         db.Integer,
         db.ForeignKey('messages.id', ondelete='cascade'),
         unique=True
     )
 
-
 class User(db.Model):
     """User in the system."""
-
     __tablename__ = 'users'
 
     id = db.Column(
         db.Integer,
         primary_key=True,
     )
-
     email = db.Column(
         db.Text,
         nullable=False,
         unique=True,
     )
-
     username = db.Column(
         db.Text,
         nullable=False,
         unique=True,
     )
-
     image_url = db.Column(
         db.Text,
         default="/static/images/default-pic.png",
     )
-
     header_image_url = db.Column(
         db.Text,
         default="/static/images/warbler-hero.jpg"
     )
-
     bio = db.Column(
         db.Text,
     )
-
     location = db.Column(
         db.Text,
     )
-
     password = db.Column(
         db.Text,
         nullable=False,
     )
-
     messages = db.relationship('Message')
-
     followers = db.relationship(
         "User",
         secondary="follows",
         primaryjoin=(Follows.user_being_followed_id == id),
         secondaryjoin=(Follows.user_following_id == id)
     )
-
     following = db.relationship(
         "User",
         secondary="follows",
         primaryjoin=(Follows.user_following_id == id),
         secondaryjoin=(Follows.user_being_followed_id == id)
     )
-
     likes = db.relationship(
         'Message',
         secondary="likes"
@@ -133,7 +113,6 @@ class User(db.Model):
     @classmethod
     def signup(cls, username, email, password, image_url):
         """Sign up user.
-
         Hashes password and adds user to system.
         """
 
@@ -202,9 +181,7 @@ class Message(db.Model):
 
 def connect_db(app):
     """Connect this database to provided Flask app.
-
     You should call this in your Flask app.
     """
-
     db.app = app
     db.init_app(app)
