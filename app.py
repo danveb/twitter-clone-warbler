@@ -27,7 +27,6 @@ connect_db(app)
 ##############################################################################
 # User signup/login/logout
 
-
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
@@ -107,7 +106,6 @@ def login():
 
     return render_template('users/login.html', form=form)
 
-
 @app.route('/logout')
 def logout():
     """Handle logout of user."""
@@ -116,7 +114,6 @@ def logout():
     session.pop(CURR_USER_KEY)
     flash('Successfully logged out', 'info')
     return redirect('/login') 
-
 
 ##############################################################################
 # General user routes:
@@ -135,7 +132,6 @@ def list_users():
 
     return render_template('users/index.html', users=users)
 
-
 @app.route('/users/<int:user_id>')
 def users_show(user_id):
     """Show user profile."""
@@ -152,7 +148,6 @@ def users_show(user_id):
                 .all())
     return render_template('users/show.html', user=user, messages=messages)
 
-
 @app.route('/users/<int:user_id>/following')
 def show_following(user_id):
     """Show list of people this user is following."""
@@ -164,7 +159,6 @@ def show_following(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('users/following.html', user=user)
 
-
 @app.route('/users/<int:user_id>/followers')
 def users_followers(user_id):
     """Show list of followers of this user."""
@@ -175,7 +169,6 @@ def users_followers(user_id):
 
     user = User.query.get_or_404(user_id)
     return render_template('users/followers.html', user=user)
-
 
 @app.route('/users/follow/<int:follow_id>', methods=['POST'])
 def add_follow(follow_id):
@@ -191,7 +184,6 @@ def add_follow(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
-
 @app.route('/users/stop-following/<int:follow_id>', methods=['POST'])
 def stop_following(follow_id):
     """Have currently-logged-in-user stop following this user."""
@@ -205,7 +197,6 @@ def stop_following(follow_id):
     db.session.commit()
 
     return redirect(f"/users/{g.user.id}/following")
-
 
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
@@ -249,7 +240,26 @@ def delete_user():
 
     return redirect("/signup")
 
+# POST Route -> message likes 
+@app.route('/users/add_like/<int:message_id>', methods=['POST'])
+def toggle_like(message_id):
+    """Toggle whether current user likes specified message."""
+    message = Message.query.get_or_404(message_id)
+    if message in g.user.likes:
+        flash('Message unliked', 'secondary')
+        g.user.likes.remove(message)
+    else:
+        flash('Message liked', 'success')
+        g.user.likes.append(message)
+    db.session.commit()
+    return redirect('/')
 
+@app.route('/users/<int:user_id>/likes')
+def users_likes(user_id):
+    """Show list of warbles liked by this user"""
+    user = User.query.get_or_404(user_id)
+    return render_template('users/likes.html', user=user)
+    
 ##############################################################################
 # Messages routes:
 
@@ -275,14 +285,12 @@ def messages_add():
 
     return render_template('messages/new.html', form=form)
 
-
 @app.route('/messages/<int:message_id>', methods=["GET"])
 def messages_show(message_id):
     """Show a message."""
 
     msg = Message.query.get(message_id)
     return render_template('messages/show.html', message=msg)
-
 
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
 def messages_destroy(message_id):
@@ -298,10 +306,8 @@ def messages_destroy(message_id):
 
     return redirect(f"/users/{g.user.id}")
 
-
 ##############################################################################
 # Homepage and error pages
-
 
 @app.route('/')
 def homepage():
@@ -324,7 +330,6 @@ def homepage():
 
     else:
         return render_template('home-anon.html')
-
 
 ##############################################################################
 # Turn off all caching in Flask
